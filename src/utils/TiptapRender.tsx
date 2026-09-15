@@ -1,9 +1,14 @@
-import { IATiptapProps, IContent2, ITiptapJson } from '@allahbin/tiptap';
 import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 import React from 'react';
-import { IContent } from '../editor';
+import type { IContent, ITiptapJson } from '../editor';
 import { PreviewableImage, toCssSize } from '../image-preview';
 import '../image-preview/image-preview.css';
+import '../index.css';
+import { renderDefaultFileView } from '../notion-like/file/DefaultFileViews';
+import { getFileKind } from '../notion-like/file/file-kind';
+import '../notion-like/notion-like.css';
+import { NOTION_THEME_CLASS } from '../notion-like/notion-theme';
 
 export type ILinkRender<T = any> = (node: React.ReactNode, mark: any, params: T) => React.ReactNode;
 
@@ -28,6 +33,8 @@ export type FileRenderers = {
   file?: (props: FileNodeRenderProps) => React.ReactNode;
 };
 
+export type IRenderMode = 'normal' | 'gov' | 'custom' | 'notion';
+
 export type IRenderConfig = {
   onLinkClick?: (p: any) => void;
   /**
@@ -41,7 +48,7 @@ export type IRenderConfig = {
   /**
    * 渲染的模式 - 普通 还是 公文 自定义 - 默认是gov
    */
-  renderMode?: IATiptapProps['renderMode'];
+  renderMode?: IRenderMode;
   /** 文件块自定义渲染（只读 JSON 渲染） */
   fileRenderers?: FileRenderers;
   /** 文件块点击 */
@@ -82,6 +89,50 @@ export function getUrlParams<T = any>(url: string): T {
 // 数组求和，接收一个数组，返回数组的和
 export function sum(arr: number[]) {
   return arr.reduce((pre, cur) => pre + cur, 0);
+}
+
+function collectCodeText(content: any[] | undefined): string {
+  if (!content || !Array.isArray(content)) {
+    return '';
+  }
+  return content
+    .map((node: any) => {
+      if (node?.type === 'hardBreak') {
+        return '\n';
+      }
+      return node?.text || '';
+    })
+    .join('');
+}
+
+function highlightCode(codeText: string, language?: string): string | null {
+  if (!codeText) {
+    return '';
+  }
+  try {
+    if (language && hljs.getLanguage(language)) {
+      return hljs.highlight(codeText, { language }).value;
+    }
+    return hljs.highlightAuto(codeText).value;
+  } catch {
+    return null;
+  }
+}
+
+function collectColWidths(firstRow: any): number[] {
+  const widths: number[] = [];
+  firstRow?.content?.forEach((cell: any) => {
+    const colwidth = cell?.attrs?.colwidth;
+    if (Array.isArray(colwidth) && colwidth.length) {
+      widths.push(...colwidth.map((n: unknown) => Number(n) || 0));
+      return;
+    }
+    const span = Number(cell?.attrs?.colspan) || 1;
+    for (let i = 0; i < span; i += 1) {
+      widths.push(0);
+    }
+  });
+  return widths;
 }
 
 class TiptapRender {
@@ -143,8 +194,6 @@ class TiptapRender {
     const { marks, text } = params;
     if (!marks || marks.length === 0) return this.config.textRender?.(text) || text;
 
-    // 递归处理，将文本包裹在最后一个标记的标签中，并对剩余的标记递归调用
-    if (!marks || marks.length === 0) return this.config.textRender?.(text) || text;
     const [mark, ...remainingMarks] = marks;
     if (!mark) return text;
     switch (mark.type) {
@@ -154,6 +203,14 @@ class TiptapRender {
         return this.renderBold(mark.key, remainingMarks, text);
       case 'italic':
         return this.renderItalic(mark.key, remainingMarks, text);
+      case 'strike':
+        return this.renderStrike(mark.key, remainingMarks, text);
+      case 'underline':
+        return this.renderUnderline(mark.key, remainingMarks, text);
+      case 'code':
+        return this.renderInlineCode(mark.key, remainingMarks, text);
+      case 'highlight':
+        return this.renderHighlight(mark.key, remainingMarks, text, mark.attrs?.color);
       default:
         return this.applyMarks({ marks: remainingMarks, text });
     }
@@ -165,6 +222,26 @@ class TiptapRender {
 
   renderItalic(key: string, marks: any[], text: string) {
     return <em key={key}>{this.applyMarks({ marks, text })}</em>;
+  }
+
+  renderStrike(key: string, marks: any[], text: string) {
+    return <s key={key}>{this.applyMarks({ marks, text })}</s>;
+  }
+
+  renderUnderline(key: string, marks: any[], text: string) {
+    return <u key={key}>{this.applyMarks({ marks, text })}</u>;
+  }
+
+  renderInlineCode(key: string, marks: any[], text: string) {
+    return <code key={key}>{this.applyMarks({ marks, text })}</code>;
+  }
+
+  renderHighlight(key: string, marks: any[], text: string, color?: string) {
+    return (
+      <mark key={key} style={color ? { backgroundColor: color } : undefined}>
+        {this.applyMarks({ marks, text })}
+      </mark>
+    );
   }
 
   /**
@@ -188,50 +265,14 @@ class TiptapRender {
    * @param item
    */
   renderHeading(item: any) {
-    switch (item.attrs.level) {
-      case 1:
-        return (
-          <h1 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h1>
-        );
-      case 2:
-        return (
-          <h2 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h2>
-        );
-      case 3:
-        return (
-          <h3 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h3>
-        );
-      case 4:
-        return (
-          <h4 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h4>
-        );
-      case 5:
-        return (
-          <h5 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h5>
-        );
-      case 6:
-        return (
-          <h6 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h6>
-        );
-      default:
-        return (
-          <h1 key={item.key} id={item.key} style={{ textAlign: item.attrs.textAlign }}>
-            {this.renderContent(item.content)}
-          </h1>
-        );
-    }
+    const level = Math.min(Math.max(Number(item.attrs?.level) || 1, 1), 6);
+    const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+    const textAlign = item.attrs?.textAlign;
+    return (
+      <Tag key={item.key} id={item.key} style={textAlign ? { textAlign } : undefined}>
+        {this.renderContent(item.content)}
+      </Tag>
+    );
   }
 
   renderHardBreak(item: any) {
@@ -276,9 +317,15 @@ class TiptapRender {
    * 渲染paragraph
    */
   renderParagraph(item: any) {
+    const textAlign = item.attrs?.textAlign;
+    const hasContent = Array.isArray(item.content) && item.content.length > 0;
     return (
-      <p key={item.key}>
-        <br className="ProseMirror-trailingBreak" />
+      <p key={item.key} style={textAlign ? { textAlign } : undefined}>
+        {hasContent ? (
+          this.renderContent(item.content)
+        ) : (
+          <br className="ProseMirror-trailingBreak" />
+        )}
       </p>
     );
   }
@@ -290,92 +337,114 @@ class TiptapRender {
     return <hr key={item.key} contentEditable="false" />;
   }
 
+  renderBlockquote(item: any) {
+    return <blockquote key={item.key}>{this.renderContent(item.content)}</blockquote>;
+  }
+
+  renderBulletList(item: any) {
+    return <ul key={item.key}>{this.renderContent(item.content)}</ul>;
+  }
+
+  renderOrderedList(item: any) {
+    const start = Number(item.attrs?.start);
+    return (
+      <ol key={item.key} start={start > 1 ? start : undefined}>
+        {this.renderContent(item.content)}
+      </ol>
+    );
+  }
+
+  renderListItem(item: any) {
+    return <li key={item.key}>{this.renderContent(item.content)}</li>;
+  }
+
+  renderTaskList(item: any) {
+    return (
+      <ul key={item.key} data-type="taskList">
+        {this.renderContent(item.content)}
+      </ul>
+    );
+  }
+
+  renderTaskItem(item: any) {
+    const checked = Boolean(item.attrs?.checked);
+    return (
+      <li key={item.key} data-type="taskItem" data-checked={checked ? 'true' : 'false'}>
+        <label contentEditable={false}>
+          <input type="checkbox" checked={checked} disabled readOnly />
+          <span />
+        </label>
+        <div>{this.renderContent(item.content)}</div>
+      </li>
+    );
+  }
+
   /**
    * 渲染codeBlock
    */
   renderCodeBlock(item: any) {
     const language = item?.attrs?.language;
+    const codeText = collectCodeText(item.content);
+    const highlighted = highlightCode(codeText, language);
+    const className = ['hljs', language ? `language-${language}` : ''].filter(Boolean).join(' ');
     return (
-      <div key={item.key} className="react-renderer node-codeBlock">
-        <div
-          className="atiptap-code-block"
-          style={{
-            whiteSpace: 'normal'
-          }}
-        >
-          <div className="atiptap-code-block__content">
-            <pre className="hljs">
-              <code style={{ whiteSpace: 'pre-wrap' }}>
-                <div style={{ whiteSpace: 'initial', textIndent: 0, fontSize: 14 }}>
-                  {item.content?.map((textItem: any) => {
-                    let highlightedCode = textItem.text;
-                    if (language) {
-                      highlightedCode = hljs.highlight(textItem.text, {
-                        language
-                      }).value;
-
-                      // 如果没有高亮，就使用普通的文本渲染
-                      return (
-                        <span
-                          style={{ whiteSpace: 'pre-wrap' }}
-                          key={textItem.key}
-                          dangerouslySetInnerHTML={{
-                            __html: highlightedCode
-                          }}
-                        />
-                      );
-                    }
-                    // 使用applyMarks来处理可能的文本样式
-                    return (
-                      <span style={{ whiteSpace: 'pre-wrap' }} key={textItem.key}>
-                        {this.applyMarks({
-                          marks: textItem.marks || [],
-                          text: textItem.text
-                        })}
-                      </span>
-                    );
-                  })}
-                </div>
-              </code>
-            </pre>
-          </div>
-        </div>
-      </div>
+      <pre key={item.key}>
+        <code className={className}>
+          {highlighted !== null ? (
+            <span dangerouslySetInnerHTML={{ __html: highlighted }} />
+          ) : (
+            codeText
+          )}
+        </code>
+      </pre>
     );
   }
 
-  renderRow(row: IContent2, index: number) {
+  renderTableCell(cell: any, cellIndex: number) {
+    const attrs = cell?.attrs || {};
+    const Tag = cell?.type === 'tableHeader' ? 'th' : 'td';
+    const colwidth = Array.isArray(attrs.colwidth) ? attrs.colwidth : [];
+    const numericWidths = colwidth
+      .map((n: unknown) => Number(n))
+      .filter((n: number) => Number.isFinite(n) && n > 0);
+    const width = numericWidths.length ? `${sum(numericWidths)}px` : undefined;
+    const style: React.CSSProperties = {};
+    if (width) {
+      style.width = width;
+    }
+    if (attrs.backgroundColor) {
+      style.backgroundColor = attrs.backgroundColor;
+    }
+    if (attrs.nodeTextAlign) {
+      style.textAlign = attrs.nodeTextAlign;
+    }
+    if (attrs.nodeVerticalAlign) {
+      style.verticalAlign = attrs.nodeVerticalAlign;
+    }
+    const extra: React.TdHTMLAttributes<HTMLTableCellElement> = {};
+    if (Number(attrs.colspan) > 1) {
+      extra.colSpan = Number(attrs.colspan);
+    }
+    if (Number(attrs.rowspan) > 1) {
+      extra.rowSpan = Number(attrs.rowspan);
+    }
     return (
-      <tr key={row.key || index}>
-        {row.content.map((cell, cellIndex) => {
-          if (!cell.attrs?.colwidth) {
-            return null;
-          }
-          const totalColSpanWidth = sum(cell.attrs!.colwidth);
-          const config: any = {
-            width: `${totalColSpanWidth}px`
-          };
-          if (cell.attrs!.colspan > 1) {
-            config.colSpan = cell.attrs!.colspan;
-          }
-          if (cell.attrs!.rowspan > 1) {
-            config.rowSpan = cell.attrs!.rowspan;
-          }
+      <Tag
+        key={cell?.key || cellIndex}
+        {...extra}
+        style={Object.keys(style).length ? style : undefined}
+      >
+        {this.renderContent(cell?.content)}
+      </Tag>
+    );
+  }
 
-          // 获取单元格内容的样式
-          const pattrs: any = cell.content[0]?.attrs || {};
-          delete pattrs.indent;
-
-          return (
-            // eslint-disable-next-line react/no-array-index-key
-            <td key={cellIndex} {...config} style={{ width: config.width }}>
-              <p style={{ ...pattrs }}>
-                {/* 使用renderContent来渲染单元格内容，而不是直接访问text */}
-                {this.renderContent(cell.content[0]?.content || [])}
-              </p>
-            </td>
-          );
-        })}
+  renderRow(row: any, index: number) {
+    return (
+      <tr key={row?.key || index}>
+        {(row?.content || []).map((cell: any, cellIndex: number) =>
+          this.renderTableCell(cell, cellIndex)
+        )}
       </tr>
     );
   }
@@ -384,20 +453,34 @@ class TiptapRender {
    * 渲染表格
    */
   renderTable(item: IContent) {
-    const allWidth: number[] = [];
     if (!item.content || item.content.length === 0) return null;
-    item.content[0]?.content?.forEach(cell => {
-      if (cell.attrs?.colwidth) {
-        allWidth.push(...cell.attrs.colwidth);
-      }
-    });
-    const totalColSpanWidth = sum(allWidth);
+    const attrs = (item.attrs || {}) as IContent['attrs'] & { 'data-align'?: string };
+    const align = attrs['data-align'] || attrs.align;
+    const colWidths = collectColWidths(item.content[0]);
+    const totalColSpanWidth = sum(colWidths.filter(n => n > 0));
     return (
-      <div className="tableWrapper" key={item.key}>
-        <div className="scrollWrapper">
-          <table style={{ width: `${totalColSpanWidth}px`, tableLayout: 'auto' }}>
-            <tbody>{item.content.map((row, index) => this.renderRow(row, index))}</tbody>
-          </table>
+      <div key={item.key} data-content-type="table" data-align={align || undefined}>
+        <div className="tableWrapper">
+          <div className="table-container">
+            <table
+              style={
+                totalColSpanWidth > 0
+                  ? { width: `${totalColSpanWidth}px`, tableLayout: 'fixed' }
+                  : { tableLayout: 'fixed' }
+              }
+            >
+              {colWidths.length > 0 ? (
+                <colgroup>
+                  {/* eslint-disable react/no-array-index-key */}
+                  {colWidths.map((w, colIndex) => (
+                    <col key={colIndex} style={w > 0 ? { width: `${w}px` } : undefined} />
+                  ))}
+                  {/* eslint-enable react/no-array-index-key */}
+                </colgroup>
+              ) : null}
+              <tbody>{item.content.map((row, index) => this.renderRow(row, index))}</tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -423,19 +506,21 @@ class TiptapRender {
       : undefined;
     return (
       <div className="react-renderer node-image" contentEditable={false} key={item.key}>
-        <div className={`atiptap-image atiptap-image__align-${align}`}>
+        <div className="atiptap-notion-image" data-align={align}>
           <div
-            className="atiptap-image__view"
-            style={width ? { width, maxWidth: '100%' } : undefined}
+            className="atiptap-notion-image__container"
+            style={{ width: width || 'fit-content' }}
           >
-            <PreviewableImage
-              src={src}
-              alt={alt}
-              width={width}
-              className="atiptap-image-previewable"
-              onPreviewClick={onPreviewClick}
-            />
-            {caption ? <div className="atiptap-image__caption">{caption}</div> : null}
+            <div className="atiptap-notion-image__content">
+              <PreviewableImage
+                src={src}
+                alt={alt}
+                width="100%"
+                className="atiptap-notion-image__img"
+                onPreviewClick={onPreviewClick}
+              />
+            </div>
+            {caption ? <div className="atiptap-notion-image__caption">{caption}</div> : null}
           </div>
         </div>
       </div>
@@ -452,14 +537,10 @@ class TiptapRender {
     const size =
       typeof item.attrs?.size === 'number'
         ? item.attrs.size
-        : item.attrs?.size == null
+        : item.attrs?.size === undefined || item.attrs?.size === null
           ? null
           : Number(item.attrs.size);
-    const kind: FileKind = mime.startsWith('video/')
-      ? 'video'
-      : mime.startsWith('audio/')
-        ? 'audio'
-        : 'file';
+    const kind: FileKind = getFileKind(mime, name);
     const info: FileNodeInfo = {
       kind,
       src,
@@ -478,36 +559,11 @@ class TiptapRender {
       }
     };
 
-    const defaultRender = () => {
-      if (kind === 'video') {
-        return (
-          <div className="atiptap-notion-file atiptap-notion-file--video">
-            <div className="atiptap-notion-file__titlebar" onClick={handleActivate}>
-              <span className="atiptap-notion-file__name">{name || '视频'}</span>
-            </div>
-            <video className="atiptap-notion-file__media" src={src} controls preload="metadata" />
-          </div>
-        );
-      }
-      if (kind === 'audio') {
-        return (
-          <div className="atiptap-notion-file atiptap-notion-file--audio">
-            <div className="atiptap-notion-file__titlebar" onClick={handleActivate}>
-              <span className="atiptap-notion-file__name">{name || '音频'}</span>
-            </div>
-            <audio className="atiptap-notion-file__audio" src={src} controls preload="metadata" />
-          </div>
-        );
-      }
-      return (
-        <button type="button" className="atiptap-notion-file atiptap-notion-file--card" onClick={handleActivate}>
-          <span className="atiptap-notion-file__meta">
-            <span className="atiptap-notion-file__name">{name || '附件'}</span>
-            <span className="atiptap-notion-file__sub">{mime || '文件'}</span>
-          </span>
-        </button>
-      );
-    };
+    const defaultRender = () =>
+      renderDefaultFileView({
+        ...info,
+        onActivate: handleActivate
+      });
 
     const custom = this.config.fileRenderers?.[kind];
     const content = custom
@@ -534,6 +590,7 @@ class TiptapRender {
     }
     return <p key={item.key || item.type + key}>{this.renderContent(item.content)}</p>;
   }
+
   renderContent(content: any[]): React.ReactNode {
     if (!content || !Array.isArray(content)) {
       return null;
@@ -545,7 +602,10 @@ class TiptapRender {
       }
 
       if (item.type === 'text') {
-        const style = this.isAfterHardBreak ? { paddingLeft: '2em' } : {};
+        const style =
+          this.isAfterHardBreak && this.config.renderMode === 'gov'
+            ? { paddingLeft: '2em' }
+            : undefined;
         this.isAfterHardBreak = false;
         return this.renderText(item, style);
       }
@@ -555,16 +615,7 @@ class TiptapRender {
         return <br key={item.key} />;
       }
 
-      if (item.type === 'mention') {
-        return this.renderMention(item);
-      }
-
-      // 处理其他类型的内容
-      if (item.content) {
-        return this.renderType(item, index);
-      }
-
-      return <span key={item.key}>{item.text}</span>;
+      return this.renderType(item, index);
     });
   }
 
@@ -607,8 +658,26 @@ class TiptapRender {
     if (item.type === 'AWenHao') {
       return this.renderAWenHao(item);
     }
-    if (item.type === 'paragraph' && !item.content) {
+    if (item.type === 'paragraph') {
       return this.renderParagraph(item);
+    }
+    if (item.type === 'blockquote') {
+      return this.renderBlockquote(item);
+    }
+    if (item.type === 'bulletList') {
+      return this.renderBulletList(item);
+    }
+    if (item.type === 'orderedList') {
+      return this.renderOrderedList(item);
+    }
+    if (item.type === 'listItem') {
+      return this.renderListItem(item);
+    }
+    if (item.type === 'taskList') {
+      return this.renderTaskList(item);
+    }
+    if (item.type === 'taskItem') {
+      return this.renderTaskItem(item);
     }
     if (item.type === 'horizontalRule') {
       return this.renderHorizontalRule(item);
@@ -622,14 +691,15 @@ class TiptapRender {
     if (item.type === 'table') {
       return this.renderTable(item);
     }
-    // 如果是图片
     if (item.type === 'image') {
       return this.renderImage(item);
     }
     if (item.type === 'file') {
       return this.renderFile(item);
     }
-    // 判断是不是段落之类的type
+    if (item.type === 'imageUpload' || item.type === 'fileUpload') {
+      return null;
+    }
     return this.renderDefault(item, index);
   }
 
@@ -647,6 +717,8 @@ class TiptapRender {
       return <></>;
     }
 
+    this.isAfterHardBreak = false;
+
     // 循环补充下key
     this.json.content.forEach((item, index) => {
       if (!item.key) {
@@ -654,11 +726,30 @@ class TiptapRender {
       }
     });
 
+    const renderMode = this.config.renderMode || 'custom';
+    const isNotion = renderMode === 'notion';
+    const nodes = this.json.content.map((item, index) => this.renderType(item, index));
+
+    if (isNotion) {
+      return (
+        <div className={`atiptap-notion ${NOTION_THEME_CLASS}`}>
+          <div className="atiptap-content">
+            <div
+              className="atiptap-notion-prosemirror ProseMirror markdown-body"
+              contentEditable={false}
+            >
+              {nodes}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className={`atiptap_main_${this.config.renderMode}`}>
+      <div className={`atiptap_main_${renderMode}`}>
         <div className="atiptap-content">
-          <div className="tiptap ProseMirror markdown-body">
-            {this.json.content.map((item, index) => this.renderType(item, index))}
+          <div className="tiptap ProseMirror markdown-body" contentEditable={false}>
+            {nodes}
           </div>
         </div>
       </div>

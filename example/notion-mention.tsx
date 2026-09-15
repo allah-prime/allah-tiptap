@@ -40,7 +40,7 @@ export default () => {
     []
   );
 
-  const readonly = useMemo(() => new TiptapRender(json, { renderMode: 'custom' }).render(), [json]);
+  const readonly = useMemo(() => new TiptapRender(json, { renderMode: 'notion' }).render(), [json]);
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>

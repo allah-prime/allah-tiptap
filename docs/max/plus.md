@@ -72,8 +72,16 @@ myEditorRender.render(jsonValue)
         return this.renderBold(mark.key, remainingMarks, text);
       case 'italic':
         return this.renderItalic(mark.key, remainingMarks, text);
+      case 'strike':
+        return this.renderStrike(mark.key, remainingMarks, text);
+      case 'underline':
+        return this.renderUnderline(mark.key, remainingMarks, text);
+      case 'code':
+        return this.renderInlineCode(mark.key, remainingMarks, text);
+      case 'highlight':
+        return this.renderHighlight(mark.key, remainingMarks, text, mark.attrs?.color);
       default:
-        return <span key={mark.key}>{this.applyMarks({ marks: remainingMarks, text })}</span>;
+        return this.applyMarks({ marks: remainingMarks, text });
     }
 ```
 

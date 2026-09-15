@@ -69,7 +69,7 @@ export default () => {
       >
         渲染到div中
       </button>
-      <div style={buttonStyle}>{jsonToDom(jsonValue)}</div>
+      <div style={buttonStyle}>{jsonToDom(jsonValue, { renderMode: 'gov' })}</div>
       <h4>自定义渲染函数</h4>
       <div style={buttonStyle}>{myEditorRender.render(jsonValue)}</div>
     </>

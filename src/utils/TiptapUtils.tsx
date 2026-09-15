@@ -1,4 +1,3 @@
-import 'highlight.js/styles/default.css';
 import { ITiptapJson } from '../editor';
 import TiptapRender, { IRenderConfig } from './TiptapRender';
 
@@ -11,7 +10,14 @@ export const paragraphTypes = [
   'heading',
   'codeBlock',
   'horizontalRule',
-  'hardBreak'
+  'hardBreak',
+  'blockquote',
+  'bulletList',
+  'orderedList',
+  'taskList',
+  'table',
+  'image',
+  'file'
 ];
 
 // 渲染的对象池

@@ -183,7 +183,7 @@ const NotionExtendDemo = () => {
 
   const readonly = useMemo(() => {
     const render = new TiptapRender(json as any, {
-      renderMode: 'normal',
+      renderMode: 'notion',
       nodeRenderers: {
         callout: (item, { renderContent }) => (
           <aside
