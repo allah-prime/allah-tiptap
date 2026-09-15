@@ -3,7 +3,7 @@ import { JsonRenderModeDemo } from './json-render-shared';
 
 export default () => (
   <JsonRenderModeDemo
-    switchable
-    hint="左侧编辑，右侧用 jsonToDom 只读渲染同一份 JSON。切换皮肤后两边会一起变化。"
+    renderMode="normal"
+    hint="普通文章皮肤，适合一般富文本详情页。传 renderMode: 'normal'。"
   />
 );
