@@ -11,7 +11,7 @@ nav: 自定义渲染
 ## 快速开始
 
 ```tsx | pure
-import { jsonToDom } from '@allahbin/tiptap';
+import { jsonToDom } from '@allahjs/tiptap';
 
 jsonToDom(json, { renderMode: 'custom' });
 ```
@@ -19,7 +19,7 @@ jsonToDom(json, { renderMode: 'custom' });
 或直接实例化：
 
 ```tsx | pure
-import { TiptapRender } from '@allahbin/tiptap';
+import { TiptapRender } from '@allahjs/tiptap';
 
 new TiptapRender(json, { renderMode: 'gov' }).render();
 ```
@@ -28,12 +28,12 @@ new TiptapRender(json, { renderMode: 'gov' }).render();
 
 ## 渲染模式
 
-| `renderMode` | 皮肤 | 说明 |
-| --- | --- | --- |
-| `gov` | [公文](/render/gov) | 宋体、首行缩进、公文标题 / 文号 / 落款 |
-| `normal` | [普通](/render/normal) | 一般文章详情 |
-| `custom` | [自定义](/render/custom) | **默认值**，不传 `renderMode` 时走这一套 |
-| `notion` | [块编辑器](/render/notion) | `atiptap-notion` 主题、提及、文件卡片 |
+| `renderMode` | 皮肤                       | 说明                                     |
+| ------------ | -------------------------- | ---------------------------------------- |
+| `gov`        | [公文](/render/gov)        | 宋体、首行缩进、公文标题 / 文号 / 落款   |
+| `normal`     | [普通](/render/normal)     | 一般文章详情                             |
+| `custom`     | [自定义](/render/custom)   | **默认值**，不传 `renderMode` 时走这一套 |
+| `notion`     | [块编辑器](/render/notion) | `atiptap-notion` 主题、提及、文件卡片    |
 
 ## 配置项
 
@@ -50,15 +50,15 @@ type IRenderConfig = {
 };
 ```
 
-| 配置 | 作用 |
-| --- | --- |
-| `renderMode` | 皮肤，默认 `custom` |
-| `onLinkClick` | 链接点击，参数来自 URL query |
-| `linkRender` | 完全接管链接 DOM |
+| 配置            | 作用                                   |
+| --------------- | -------------------------------------- |
+| `renderMode`    | 皮肤，默认 `custom`                    |
+| `onLinkClick`   | 链接点击，参数来自 URL query           |
+| `linkRender`    | 完全接管链接 DOM                       |
 | `nodeRenderers` | 按节点 `type` 自定义（如业务 callout） |
-| `fileRenderers` | 视频 / 音频 / 附件卡片 |
-| `onFileClick` | 附件点击 |
-| `onImageClick` | 传入则覆盖内置大图预览 |
+| `fileRenderers` | 视频 / 音频 / 附件卡片                 |
+| `onFileClick`   | 附件点击                               |
+| `onImageClick`  | 传入则覆盖内置大图预览                 |
 
 需要改某个标记或节点时，也可以继承 `TiptapRender` 覆盖 `renderLink` / `applyMarks` / `renderType`。多实例场景见 [工厂模式](/max/factory)。
 

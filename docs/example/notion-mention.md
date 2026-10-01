@@ -17,7 +17,7 @@ ANotion 内置行内 `@` 提及节点。传入 `mentionItems` 后会注册 `ment
 ## 最小用法
 
 ```tsx | pure
-import { ANotion, type MentionSuggestionItem } from '@allahbin/tiptap';
+import { ANotion, type MentionSuggestionItem } from '@allahjs/tiptap';
 
 const users: MentionSuggestionItem[] = [
   { id: 'u1', label: '张三', subtext: '研发' },
@@ -28,10 +28,8 @@ const users: MentionSuggestionItem[] = [
   mode="json"
   value={json}
   onChange={setJson}
-  mentionItems={({ query }) =>
-    users.filter(u => u.label.includes(query) || u.id.includes(query))
-  }
-/>
+  mentionItems={({ query }) => users.filter(u => u.label.includes(query) || u.id.includes(query))}
+/>;
 ```
 
 完整可运行示例见下方。

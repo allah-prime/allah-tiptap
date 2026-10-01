@@ -13,8 +13,8 @@
     "lib": ["esnext", "dom"],
     "paths": {
       "@@/*": [".dumi/tmp/*"],
-      "@allahbin/tiptap": ["src"],
-      "@allahbin/tiptap/*": ["src/*", "*"]
+      "@allahjs/tiptap": ["src"],
+      "@allahjs/tiptap/*": ["src/*", "*"]
     }
   },
   "include": ["src", "docs", "example", ".dumirc.ts"]

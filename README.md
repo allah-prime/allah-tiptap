@@ -1,7 +1,7 @@
-# @allahbin/tiptap
+# @allahjs/tiptap
 
-[![NPM version](https://img.shields.io/npm/v/@allahbin/tiptap.svg?style=flat)](https://npmjs.org/package/@allahbin/tiptap)
-[![NPM downloads](http://img.shields.io/npm/dm/@allahbin/tiptap.svg?style=flat)](https://npmjs.org/package/@allahbin/tiptap)
+[![NPM version](https://img.shields.io/npm/v/@allahjs/tiptap.svg?style=flat)](https://npmjs.org/package/@allahjs/tiptap)
+[![NPM downloads](http://img.shields.io/npm/dm/@allahjs/tiptap.svg?style=flat)](https://npmjs.org/package/@allahjs/tiptap)
 
 基于tiptap的中文文章编辑器
 

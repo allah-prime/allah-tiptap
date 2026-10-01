@@ -8,7 +8,7 @@ order: 4
 `jsonToDom` **不传 `renderMode` 时的默认值**。根节点是 `atiptap_main_custom`。
 
 ```tsx | pure
-import { jsonToDom } from '@allahbin/tiptap';
+import { jsonToDom } from '@allahjs/tiptap';
 
 jsonToDom(json);
 // 等价于

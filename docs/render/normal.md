@@ -8,7 +8,7 @@ order: 3
 对应编辑器 `renderMode="normal"`。适合一般文章详情，没有公文缩进和公文标题节点。
 
 ```tsx | pure
-import { jsonToDom } from '@allahbin/tiptap';
+import { jsonToDom } from '@allahjs/tiptap';
 
 jsonToDom(json, { renderMode: 'normal' });
 ```

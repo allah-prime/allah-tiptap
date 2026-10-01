@@ -8,21 +8,23 @@ order: 3
 Notion 风格块编辑器，和 `ATiptap` 公文编辑器分开使用。默认带边框和头部快捷操作区（对齐 [Tiptap Simple Editor](https://tiptap.dev/docs/ui-components/templates/simple-editor) 的能力，视觉走 antd）。输入 `/` 插入内容，划词弹出格式栏，左侧句柄可拖拽重排。默认按 Markdown 读写。
 
 ```tsx | pure
-import { ANotion, mockFileUploader, mockImgUploader } from '@allahbin/tiptap';
+import { ANotion, mockFileUploader, mockImgUploader } from '@allahjs/tiptap';
 
 <ANotion
   value={markdown}
   onChange={setMarkdown}
   imageUploader={mockImgUploader}
   fileUploader={mockFileUploader}
-  onFileClick={(info) => {
+  onFileClick={info => {
     // 业务自行预览 / 下载鉴权
     window.open(info.src, '_blank');
   }}
-/>
+/>;
 
-{/* 纯块编辑：关掉头部操作区和边框 */}
-<ANotion showToolbar={false} bordered={false} value={markdown} onChange={setMarkdown} />
+{
+  /* 纯块编辑：关掉头部操作区和边框 */
+}
+<ANotion showToolbar={false} bordered={false} value={markdown} onChange={setMarkdown} />;
 ```
 
 ## 能力

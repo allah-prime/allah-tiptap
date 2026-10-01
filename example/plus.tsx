@@ -1,5 +1,5 @@
-import AEditorRender, { jsonToDom } from '@allahbin/tiptap';
-import TiptapRender from '@allahbin/tiptap/utils/TiptapRender';
+import AEditorRender, { jsonToDom } from '@allahjs/tiptap';
+import TiptapRender from '@allahjs/tiptap/utils/TiptapRender';
 import React, { useState } from 'react';
 
 const buttonStyle = {

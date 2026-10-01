@@ -1,5 +1,5 @@
 {
-  "name": "@allahbin/tiptap",
+  "name": "@allahjs/tiptap",
   "version": "2.3.0",
   "description": "基于tiptap的中文文章编辑器",
   "homepage": "https://github.com/allah-prime/allah-tiptap#readme",

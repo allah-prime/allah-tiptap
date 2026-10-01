@@ -9,15 +9,15 @@ ANotion 支持把业务自己的 Tiptap Node / Extension 注入编辑器，并�
 
 ## 能力一览
 
-| API | 作用 |
-| --- | --- |
-| `extraExtensions` | 追加到内置扩展之后，注册到 schema（NodeView 随 extension 生效） |
-| `slashItems` | 追加 `/` 菜单项（内置在前） |
-| `toolbarExtra` | 工具栏额外按钮（图片/文件/表格之后、搜索之前） |
-| `getBlockIcon` | 拖拽句柄块图标；返回非 `null` 时覆盖内置映射 |
-| `blockMenuExtra` | 块菜单额外项（「转为」与图片/表格专属项之后） |
-| `children` | 逃生舱：自建 BubbleMenu 等，挂在 `EditorContent` 旁 |
-| `TiptapRender` 的 `nodeRenderers` | 只读 JSON 按 `type` 自定义渲染 |
+| API                               | 作用                                                            |
+| --------------------------------- | --------------------------------------------------------------- |
+| `extraExtensions`                 | 追加到内置扩展之后，注册到 schema（NodeView 随 extension 生效） |
+| `slashItems`                      | 追加 `/` 菜单项（内置在前）                                     |
+| `toolbarExtra`                    | 工具栏额外按钮（图片/文件/表格之后、搜索之前）                  |
+| `getBlockIcon`                    | 拖拽句柄块图标；返回非 `null` 时覆盖内置映射                    |
+| `blockMenuExtra`                  | 块菜单额外项（「转为」与图片/表格专属项之后）                   |
+| `children`                        | 逃生舱：自建 BubbleMenu 等，挂在 `EditorContent` 旁             |
+| `TiptapRender` 的 `nodeRenderers` | 只读 JSON 按 `type` 自定义渲染                                  |
 
 ## 约定
 
@@ -30,13 +30,13 @@ ANotion 支持把业务自己的 Tiptap Node / Extension 注入编辑器，并�
 ```tsx | pure
 import { Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import { ANotion, type SlashSuggestionItem } from '@allahbin/tiptap';
+import { ANotion, type SlashSuggestionItem } from '@allahjs/tiptap';
 import { Info } from 'lucide-react';
 
 const Callout = Node.create({
   name: 'callout',
   group: 'block',
-  content: 'block+',
+  content: 'block+'
   // parseHTML / renderHTML / addNodeView / addCommands ...
 });
 
@@ -47,10 +47,15 @@ const slashItems: SlashSuggestionItem[] = [
     badge: Info,
     group: '自定义',
     onSelect: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).insertContent({
-        type: 'callout',
-        content: [{ type: 'paragraph' }]
-      }).run();
+      editor
+        .chain()
+        .focus()
+        .deleteRange(range)
+        .insertContent({
+          type: 'callout',
+          content: [{ type: 'paragraph' }]
+        })
+        .run();
     }
   }
 ];
@@ -62,18 +67,24 @@ const slashItems: SlashSuggestionItem[] = [
   extraExtensions={[Callout]}
   slashItems={slashItems}
   toolbarExtra={editor => (
-    <button type="button" className="atiptap-notion-toolbar__btn" onClick={() => { /* insert */ }}>
+    <button
+      type="button"
+      className="atiptap-notion-toolbar__btn"
+      onClick={() => {
+        /* insert */
+      }}
+    >
       <Info size={16} />
     </button>
   )}
   getBlockIcon={node => (node.type.name === 'callout' ? Info : null)}
-/>
+/>;
 ```
 
 ## 只读渲染
 
 ```tsx | pure
-import { TiptapRender } from '@allahbin/tiptap';
+import { TiptapRender } from '@allahjs/tiptap';
 
 const render = new TiptapRender(json, {
   nodeRenderers: {

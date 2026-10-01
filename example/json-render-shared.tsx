@@ -100,7 +100,7 @@ export const ARTICLE_JSON = {
       content: [
         {
           type: 'text',
-          text: `import { jsonToDom } from '@allahbin/tiptap';
+          text: `import { jsonToDom } from '@allahjs/tiptap';
 
 jsonToDom(json, { renderMode: 'custom' });`
         }

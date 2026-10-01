@@ -12,7 +12,7 @@ ANotion 用**一个** `file` 节点承载非图片媒体，按 MIME 自动切换
 ## 快速接入
 
 ```tsx | pure
-import { ANotion, mockFileUploader, mockImgUploader } from '@allahbin/tiptap';
+import { ANotion, mockFileUploader, mockImgUploader } from '@allahjs/tiptap';
 
 <ANotion
   value={markdown}
@@ -28,19 +28,19 @@ import { ANotion, mockFileUploader, mockImgUploader } from '@allahbin/tiptap';
     // 预览、下载鉴权、打开业务 Viewer
     openPreview(info);
   }}
-/>
+/>;
 ```
 
 未配置 `fileUploader` 时：斜杠仍可插入上传占位，但会提示「未配置上传」，且**不会**把视频/附件写进文档。图片可继续只用 `imageUploader`；若只传了 `fileUploader`，图片也会回退用它。
 
 ## 插入入口
 
-| 入口 | 行为 |
-| --- | --- |
+| 入口                          | 行为                                                                  |
+| ----------------------------- | --------------------------------------------------------------------- |
 | 斜杠 `/` → 视频 / 音频 / 文件 | 插入 `fileUpload` 占位，`accept` 分别为 `video/*` / `audio/*` / `*/*` |
-| 工具栏回形针 | 插入通用文件占位 |
-| 粘贴 / 拖放 | `image/*` → `image` 节点；其它 → `file` 节点（需 `fileUploader`） |
-| 快捷键 `Mod+Shift+F` | 插入文件占位 |
+| 工具栏回形针                  | 插入通用文件占位                                                      |
+| 粘贴 / 拖放                   | `image/*` → `image` 节点；其它 → `file` 节点（需 `fileUploader`）     |
+| 快捷键 `Mod+Shift+F`          | 插入文件占位                                                          |
 
 上传完成后按 MIME 落盘：
 
@@ -79,11 +79,11 @@ Markdown 模式第一版通过 HTML 片段往返；不要把视频写成 `![](ur
 
 视觉跟 antd token（主色 `#1677ff`、边框 `#d9d9d9`），不是 Notion 暖灰。
 
-| kind | 默认 UI |
-| --- | --- |
-| `video` | 原生 `<video controls>` + 标题条 |
-| `audio` | 原生 `<audio controls>` + 标题条 |
-| `file` | 附件卡片：图标 + 文件名 + 体积 / MIME |
+| kind    | 默认 UI                               |
+| ------- | ------------------------------------- |
+| `video` | 原生 `<video controls>` + 标题条      |
+| `audio` | 原生 `<audio controls>` + 标题条      |
+| `file`  | 附件卡片：图标 + 文件名 + 体积 / MIME |
 
 点击约定：
 
@@ -135,24 +135,24 @@ type FileNodeRenderProps = {
 JSON 预览同样支持 `file` 节点，配置写在 `IRenderConfig`：
 
 ```tsx | pure
-import { TiptapRender } from '@allahbin/tiptap';
+import { TiptapRender } from '@allahjs/tiptap';
 
 new TiptapRender(json, {
-  fileRenderers: { /* 同上 */ },
+  fileRenderers: {/* 同上 */},
   onFileClick: info => openPreview(info)
 }).render();
 ```
 
 ## Props 一览
 
-| Prop | 类型 | 说明 |
-| --- | --- | --- |
-| `fileUploader` | `(file, onProgress) => Promise<string>` | 非图片上传，返回 URL |
-| `imageUploader` | 同上 | 图片上传；可缺省并回退到 `fileUploader` |
-| `fileRenderers` | `{ video?, audio?, file? }` | 按 kind 自定义 NodeView |
-| `onFileClick` | `(info, event) => void` | 点击回调 |
+| Prop            | 类型                                    | 说明                                    |
+| --------------- | --------------------------------------- | --------------------------------------- |
+| `fileUploader`  | `(file, onProgress) => Promise<string>` | 非图片上传，返回 URL                    |
+| `imageUploader` | 同上                                    | 图片上传；可缺省并回退到 `fileUploader` |
+| `fileRenderers` | `{ video?, audio?, file? }`             | 按 kind 自定义 NodeView                 |
+| `onFileClick`   | `(info, event) => void`                 | 点击回调                                |
 
-导出类型：`FileKind`、`FileNodeInfo`、`FileNodeRenderProps`、`FileRenderers`（见 `@allahbin/tiptap`）。
+导出类型：`FileKind`、`FileNodeInfo`、`FileNodeRenderProps`、`FileRenderers`（见 `@allahjs/tiptap`）。
 
 Demo 还提供 `mockFileUploader`（返回 object URL，仅本地演示，不要当生产存储）。
 
