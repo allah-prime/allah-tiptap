@@ -1,0 +1,1 @@
+(globalThis.utooChunk__allahbin_tiptap||(globalThis.utooChunk__allahbin_tiptap=[])).push(["object"==typeof document?document.currentScript:void 0,786621,t=>{"use strict";t.i(999161),t.i(489121),t.s(["demos",0,{}])}]);
