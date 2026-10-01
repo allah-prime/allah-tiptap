@@ -1,0 +1,45 @@
+name: Node.js Package
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Clean up old release assets
+        run: |
+          # Get the latest draft or untagged release and delete all its assets
+          # This prevents "already_exists" errors when re-running the workflow
+          LATEST_RELEASE=$(gh release list --limit 1 --json id -q '.[0].id' || echo "")
+          if [ ! -z "$LATEST_RELEASE" ]; then
+            RELEASE_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName' || echo "")
+            if [[ "$RELEASE_TAG" == "untagged"* ]] || [ -z "$RELEASE_TAG" ]; then
+              echo "Cleaning up old draft release assets..."
+              gh release delete-asset "$RELEASE_TAG" --repo ${{ github.repository }} -y || true
+            fi
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm exec semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
