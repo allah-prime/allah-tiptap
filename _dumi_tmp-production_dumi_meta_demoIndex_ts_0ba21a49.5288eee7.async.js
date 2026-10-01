@@ -1,0 +1,1 @@
+(globalThis.utooChunk__allahjs_tiptap||(globalThis.utooChunk__allahjs_tiptap=[])).push(["object"==typeof document?document.currentScript:void 0,574701,t=>{"use strict";t.s(["demoIndexMap",0,{}])}]);

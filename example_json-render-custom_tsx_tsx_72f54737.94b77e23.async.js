@@ -1,1 +1,0 @@
-(globalThis.utooChunk__allahbin_tiptap||(globalThis.utooChunk__allahbin_tiptap=[])).push(["object"==typeof document?document.currentScript:void 0,379608,o=>{"use strict";var e=o.i(380447);o.i(447184),o.i(999161);var t=o.i(732426);o.s(["default",0,()=>(0,e.jsx)(t.JsonRenderModeDemo,{renderMode:"custom",hint:"自定义皮肤是 jsonToDom 的默认值。不传 renderMode 时也走这一套。"})])}]);

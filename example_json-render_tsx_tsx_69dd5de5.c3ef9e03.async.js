@@ -1,1 +1,0 @@
-(globalThis.utooChunk__allahbin_tiptap||(globalThis.utooChunk__allahbin_tiptap=[])).push(["object"==typeof document?document.currentScript:void 0,665758,o=>{"use strict";var t=o.i(380447);o.i(487001),o.i(999161);var i=o.i(732426);o.s(["default",0,()=>(0,t.jsx)(i.JsonRenderModeDemo,{switchable:!0,hint:"左侧编辑，右侧用 jsonToDom 只读渲染同一份 JSON。切换皮肤后两边会一起变化。"})])}]);

@@ -1,1 +1,0 @@
-(globalThis.utooChunk__allahbin_tiptap||(globalThis.utooChunk__allahbin_tiptap=[])).push(["object"==typeof document?document.currentScript:void 0,189392,o=>{"use strict";var e=o.i(380447);o.i(754759),o.i(999161);var t=o.i(732426);o.s(["default",0,()=>(0,e.jsx)(t.JsonRenderModeDemo,{renderMode:"normal",hint:"普通文章皮肤，适合一般富文本详情页。传 renderMode: 'normal'。"})])}]);
