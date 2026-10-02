@@ -2,7 +2,7 @@
   "name": "@allahjs/tiptap",
   "version": "2.3.0",
   "description": "基于tiptap的中文文章编辑器",
-  "homepage": "https://github.com/allah-prime/allah-tiptap#readme",
+  "homepage": "https://allah-prime.github.io/allah-tiptap/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/allah-prime/allah-tiptap.git"
@@ -16,7 +16,6 @@
   "scripts": {
     "build": "father build",
     "build:watch": "father dev",
-    "deploy": "gh-pages -d docs-dist",
     "dev": "dumi dev",
     "docs:build": "dumi build",
     "doctor": "father doctor",
@@ -114,7 +113,6 @@
     "dumi": "2.4.49",
     "eslint": "8.57.1",
     "father": "4.6.36",
-    "gh-pages": "6.3.0",
     "husky": "9.1.7",
     "lint-staged": "17.3.0",
     "prettier": "3.9.6",

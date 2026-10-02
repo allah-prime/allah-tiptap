@@ -11,7 +11,7 @@ export default defineConfig({
       { title: '自定义渲染', link: '/render' }
     ]
   },
-  base: '/',
-  publicPath: '/',
-  utoopack: {},
+  base: '/allah-tiptap/',
+  publicPath: '/allah-tiptap/',
+  utoopack: {}
 });
