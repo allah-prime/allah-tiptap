@@ -2,9 +2,9 @@
 title: 高级用法
 ---
 
-# 自定义渲染
+# 高级用法：继承渲染类定制
 
-在开发时候，我们可能需要自定义渲染，比如对于a标签，我们可能要添加一些点击事件，这个时候我们可以继承渲染类，然后实现一个新的渲染方法
+在开发时，我们可能需要深度自定义渲染，比如对于 a 标签，我们可能要添加一些点击事件，这个时候我们可以继承渲染类，然后实现一个新的渲染方法
 
 ```typescript jsx
 
@@ -24,7 +24,7 @@ class MyEditorRender extends TiptapRender {
 然后我们在需要使用的时候，使用自定义的渲染类
 
 ```typescript
-myEditorRender.render(jsonValue)
+myEditorRender.render(jsonValue);
 ```
 
 可以看下面的示例，就是把a标签渲染成h1标签，点击按钮就可以看到效果
@@ -65,24 +65,24 @@ myEditorRender.render(jsonValue)
 文本标注的渲染函数有：
 
 ```typescript jsx
-    switch (mark.type) {
-      case 'link':
-        return this.renderLink(mark, remainingMarks, text);
-      case 'bold':
-        return this.renderBold(mark.key, remainingMarks, text);
-      case 'italic':
-        return this.renderItalic(mark.key, remainingMarks, text);
-      case 'strike':
-        return this.renderStrike(mark.key, remainingMarks, text);
-      case 'underline':
-        return this.renderUnderline(mark.key, remainingMarks, text);
-      case 'code':
-        return this.renderInlineCode(mark.key, remainingMarks, text);
-      case 'highlight':
-        return this.renderHighlight(mark.key, remainingMarks, text, mark.attrs?.color);
-      default:
-        return this.applyMarks({ marks: remainingMarks, text });
-    }
+switch (mark.type) {
+  case 'link':
+    return this.renderLink(mark, remainingMarks, text);
+  case 'bold':
+    return this.renderBold(mark.key, remainingMarks, text);
+  case 'italic':
+    return this.renderItalic(mark.key, remainingMarks, text);
+  case 'strike':
+    return this.renderStrike(mark.key, remainingMarks, text);
+  case 'underline':
+    return this.renderUnderline(mark.key, remainingMarks, text);
+  case 'code':
+    return this.renderInlineCode(mark.key, remainingMarks, text);
+  case 'highlight':
+    return this.renderHighlight(mark.key, remainingMarks, text, mark.attrs?.color);
+  default:
+    return this.applyMarks({ marks: remainingMarks, text });
+}
 ```
 
 # 示例
