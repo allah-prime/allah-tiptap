@@ -220,31 +220,25 @@
 
 /* 三级标题特性 */
 .atiptap-content .a-tiptap-title3,
-.atiptap-content .atiptap-menu-head-row__title--levelATitle3,
-.atiptap-content .a-tiptap-jie,
-.atiptap-content .atiptap-menu-head-row__title--leveljie {
+.atiptap-content .atiptap-menu-head-row__title--levelATitle3 {
   font-weight: normal;
   line-height: 1.8em;
 }
 
-/* 政府风格三级标题缩进 */
+/* 政府风格三级标题缩进。节是标题，不跟正文缩进 */
 .atiptap_main_gov .atiptap-content .a-tiptap-title3,
-.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--levelATitle3,
-.atiptap_main_gov .atiptap-content .a-tiptap-jie,
-.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--leveljie {
+.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--levelATitle3 {
   text-indent: 2em;
 }
 
-/* 卷、部、编、分编：居中，字号介于大标题和章之间 */
+/* 卷、部、编：黑体居中，字号拉开 */
 .atiptap-content .a-tiptap-juan,
 .atiptap-content .a-tiptap-bu,
 .atiptap-content .a-tiptap-bian,
-.atiptap-content .a-tiptap-fenbian,
 .atiptap-content .atiptap-menu-head-row__title--leveljuan,
 .atiptap-content .atiptap-menu-head-row__title--levelbu,
-.atiptap-content .atiptap-menu-head-row__title--levelbian,
-.atiptap-content .atiptap-menu-head-row__title--levelfenbian {
-  font-family: '宋体', serif;
+.atiptap-content .atiptap-menu-head-row__title--levelbian {
+  font-family: '黑体', SimHei, sans-serif;
   font-weight: bold;
   margin: 2px 0;
   text-align: center;
@@ -258,50 +252,82 @@
 
 .atiptap-content .a-tiptap-bu,
 .atiptap-content .atiptap-menu-head-row__title--levelbu {
-  font-size: 21px;
+  font-size: 20px;
 }
 
 .atiptap-content .a-tiptap-bian,
 .atiptap-content .atiptap-menu-head-row__title--levelbian {
-  font-size: 20px;
+  font-size: 18px;
 }
 
+/* 分编用楷体，和编错开 */
 .atiptap-content .a-tiptap-fenbian,
 .atiptap-content .atiptap-menu-head-row__title--levelfenbian {
-  font-size: 19px;
+  font-family: '楷体', KaiTi, serif;
+  font-weight: normal;
+  font-size: 16px;
+  margin: 2px 0;
+  text-align: center;
+  text-indent: 0;
 }
 
-/* 章与旧的小标题同一套 */
+/* 章：宋体加粗居中 */
 .atiptap-content .a-tiptap-zhang,
 .atiptap-content .atiptap-menu-head-row__title--levelzhang {
   font-family: '宋体', serif;
   font-weight: bold;
+  font-size: 16px;
   margin: 2px 0;
   text-align: center;
   text-indent: 0;
-  font-size: 18px;
 }
 
-/* 条顶格加粗；款按正文；项、目逐级缩进 */
+/* 节：楷体居中，不加粗 */
+.atiptap-content .a-tiptap-jie,
+.atiptap-content .atiptap-menu-head-row__title--leveljie {
+  font-family: '楷体', KaiTi, serif;
+  font-weight: normal;
+  font-size: 14px;
+  margin: 2px 0;
+  text-align: center;
+  text-indent: 0;
+  line-height: 1.8em;
+}
+
+/* 条顶格加粗，字号跟正文；款、项、目按正文缩进 */
 .atiptap-content .a-tiptap-tiao,
 .atiptap-content .atiptap-menu-head-row__title--leveltiao {
-  font-family: '宋体', serif;
+  font-family: '仿宋', FangSong, serif;
   font-weight: bold;
+  font-size: inherit;
+  text-align: left;
   text-indent: 0;
 }
 
 .atiptap-content .a-tiptap-kuan,
 .atiptap-content .atiptap-menu-head-row__title--levelkuan {
+  font-family: '仿宋', FangSong, serif;
+  font-weight: normal;
+  font-size: inherit;
+  text-align: left;
   text-indent: 2em;
 }
 
 .atiptap-content .a-tiptap-xiang,
 .atiptap-content .atiptap-menu-head-row__title--levelxiang {
-  text-indent: 2em;
+  font-family: '仿宋', FangSong, serif;
+  font-weight: normal;
+  font-size: inherit;
+  text-align: left;
+  text-indent: 3em;
 }
 
 .atiptap-content .a-tiptap-mu,
 .atiptap-content .atiptap-menu-head-row__title--levelmu {
+  font-family: '仿宋', FangSong, serif;
+  font-weight: normal;
+  font-size: inherit;
+  text-align: left;
   text-indent: 4em;
 }
 
