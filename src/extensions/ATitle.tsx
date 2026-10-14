@@ -1,6 +1,12 @@
 import { mergeAttributes, Node, textblockTypeInputRule } from '@tiptap/core';
+import { LAW_MARKS, lawClassName, LawLevel } from './lawLevel';
 
 export type Level = 1 | 2 | 3;
+
+export type ATitleAttributes = {
+  level?: Level;
+  lawLevel?: LawLevel | null;
+};
 
 export interface HeadingOptions {
   levels: Level[];
@@ -13,11 +19,11 @@ declare module '@tiptap/core' {
       /**
        * Set a heading node
        */
-      setATitle: (attributes: { level: Level }) => ReturnType;
+      setATitle: (attributes: ATitleAttributes) => ReturnType;
       /**
        * Toggle a heading node
        */
-      toggleATitle: (attributes: { level: Level }) => ReturnType;
+      toggleATitle: (attributes: ATitleAttributes) => ReturnType;
     };
   }
 }
@@ -43,30 +49,40 @@ export const ATitle = Node.create<HeadingOptions>({
       level: {
         default: 1,
         rendered: false
+      },
+      lawLevel: {
+        default: null,
+        rendered: false
       }
     };
   },
 
   parseHTML() {
-    console.log('parseHTML');
-    return this.options.levels.map((level: Level) => ({
+    const legacy = this.options.levels.map((level: Level) => ({
       tag: `div.a-tiptap-title${level}`,
-      attrs: { level, class: `a-tiptap-title${level}` }
+      attrs: {
+        level,
+        lawLevel: level === 2 ? 'zhang' : level === 3 ? 'jie' : null
+      }
     }));
+    const lawMarks = LAW_MARKS.map(mark => ({
+      tag: `div.${mark.className}`,
+      attrs: { level: mark.legacyLevel, lawLevel: mark.lawLevel }
+    }));
+    return [...lawMarks, ...legacy];
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    console.log('renderHTML');
+    const lawLevel = node.attrs.lawLevel as LawLevel | null;
     const hasLevel = this.options.levels.includes(node.attrs.level);
     const level = hasLevel ? node.attrs.level : this.options.levels[0];
-    // 根据级别来获取对应的div样式
-    return [
-      'div',
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        class: `a-tiptap-title${level}`
-      }),
-      0
-    ];
+    const attrs: Record<string, string> = {
+      class: lawClassName(lawLevel, level)
+    };
+    if (lawLevel) {
+      attrs['data-law-level'] = lawLevel;
+    }
+    return ['div', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, attrs), 0];
   },
 
   addCommands() {
@@ -78,36 +94,66 @@ export const ATitle = Node.create<HeadingOptions>({
       setATitle:
         attributes =>
         ({ commands }) => {
-          console.log('setHeading');
-          if (!this.options.levels.includes(attributes.level)) {
+          const next = resolveATitleAttributes(attributes);
+          if (!next?.level || !this.options.levels.includes(next.level)) {
             return false;
           }
-          return commands.setNode(this.name, attributes);
+          return commands.setNode(this.name, next);
         },
-      // 这个命令同样接受一个 attributes 参数，并进行类似的级别检查。
-      // 如果级别有效，它将使用 commands.toggleNode 方法来切换当前节点。
-      // 如果当前节点已经是指定的标题节点，则会切换成一个普通的段落节点（'paragraph'），否则会切换成指定的标题节点。
       toggleATitle:
         attributes =>
         ({ commands }) => {
-          if (!this.options.levels.includes(attributes.level)) {
+          const next = resolveATitleAttributes(attributes);
+          if (!next?.level || !this.options.levels.includes(next.level)) {
             return false;
           }
-          return commands.toggleNode(this.name, 'paragraph', attributes);
+          return commands.toggleNode(this.name, 'paragraph', next);
         }
     };
   },
 
   addInputRules() {
-    return this.options.levels.map(level => {
+    const legacy = this.options.levels.map(level => {
       return textblockTypeInputRule({
-        find: new RegExp(`^(!{1,${level}})\\s$`),
+        find: new RegExp(`^!{${level}}\\s$`),
+        type: this.type,
+        getAttributes: resolveATitleAttributes({ level }) || { level }
+      });
+    });
+    const lawMarks = LAW_MARKS.map(mark => {
+      return textblockTypeInputRule({
+        find: new RegExp(`^${escapeRegExp(mark.md)}\\s$`),
         type: this.type,
         getAttributes: {
-          level,
-          class: `a-tiptap-title${level}`
+          level: mark.legacyLevel,
+          lawLevel: mark.lawLevel
         }
       });
     });
+    return [...lawMarks, ...legacy];
   }
 });
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function resolveATitleAttributes(attributes: ATitleAttributes): ATitleAttributes | null {
+  if (attributes.lawLevel) {
+    const mark = LAW_MARKS.find(item => item.lawLevel === attributes.lawLevel);
+    if (!mark) {
+      return null;
+    }
+    return { level: mark.legacyLevel, lawLevel: mark.lawLevel };
+  }
+  if (!attributes.level) {
+    return null;
+  }
+  if (attributes.level === 2) {
+    return { level: 2, lawLevel: 'zhang' };
+  }
+  if (attributes.level === 3) {
+    return { level: 3, lawLevel: 'jie' };
+  }
+  return { level: attributes.level, lawLevel: null };
+}

@@ -2,7 +2,7 @@ import { Node } from '@tiptap/pm/model';
 import { Markdown as TiptapMarkdown } from 'tiptap-markdown';
 import { MarkdownClipboardCopy } from './clipboardCopy';
 import { MarkdownClipboardPaste } from './clipboardPaste';
-import { aHeadingHtmlToMd, aTailHtmlToMd, aWenHaoHtmlToMd } from './utils';
+import { aHeadingHtmlToMd, aLawHtmlToMd, aTailHtmlToMd, aWenHaoHtmlToMd } from './utils';
 
 export type MarkdownOptions = {
   html?: boolean;
@@ -34,6 +34,7 @@ export const Markdown = TiptapMarkdown.extend<MarkdownOptions>({
       let mdStr = (this.editor.storage as any).markdown.serializer.serialize(
         content ?? this.editor.state.doc
       );
+      mdStr = aLawHtmlToMd(mdStr);
       mdStr = aHeadingHtmlToMd(mdStr);
       mdStr = aWenHaoHtmlToMd(mdStr);
       mdStr = aTailHtmlToMd(mdStr);

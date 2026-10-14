@@ -1,4 +1,5 @@
 import { ITiptapJson } from '../editor';
+import { directoryRankOf } from '../extensions/lawLevel';
 import TiptapRender, { IRenderConfig } from './TiptapRender';
 
 // 定义段落的数组，也就是占一行的类型有哪些
@@ -34,49 +35,58 @@ export const jsonToDom = (json: ITiptapJson, config?: IRenderConfig) => {
   return renderPool.render();
 };
 
-// 从blockJson中获取所有的heading或者ATitle，然后返回成一个树数据，根据level的等级来进行排序，比如level为2的就是在1的子集，如果level为3就是在2的子集
+// 从blockJson中获取标题，挂到条为止。款、项、目不进目录。
 export const generateDirectoryTree = (jsonData: ITiptapJson): any[] => {
-  if (!jsonData) {
+  if (!jsonData?.content) {
     return [];
   }
+  const directoryTree: any[] = [];
+  const stack: Array<{ rank: number; node: any }> = [];
   let key = 1;
-  const data = jsonData.content;
-  const directoryTree = [];
-  // 先查询下最大的level
-  const maxLevel = data.reduce((max, item) => {
-    if (item.type === 'ATitle' || item.type === 'heading') {
-      return Math.max(max, item.attrs.level);
+
+  jsonData.content.forEach(item => {
+    if (item.type !== 'ATitle' && item.type !== 'heading') {
+      return;
     }
-    return max;
-  }, 0);
-  for (let i = 0; i < data.length; i++) {
-    const newKey = key++;
-    const item = data[i];
-    if (item.type === 'ATitle' || item.type === 'heading') {
-      const node: any = {
-        title: item.content[0].text,
-        label: item.content[0].text,
-        key: `${newKey}`,
-        value: `${newKey}`,
-        isLeaf: true,
-        children: [],
-        pcode: '-1'
-      };
-      if (maxLevel === 1) {
-        if (item.attrs.level === 1) {
-          directoryTree.push(node);
-        } else if (item.attrs.level === 2) {
-          if (directoryTree.length > 0) {
-            const parent = directoryTree[directoryTree.length - 1];
-            node.pcode = parent.value;
-            node.isLeaf = false;
-            parent.children!.push(node);
-          }
-        }
-      } else {
-        directoryTree.push(node);
-      }
+    const rank = directoryRankOf(item.attrs?.lawLevel, item.attrs?.level);
+    if (rank === null || rank === undefined) {
+      return;
     }
-  }
+    const title = blockText(item);
+    if (!title) {
+      return;
+    }
+    const node: any = {
+      title,
+      label: title,
+      key: `${key}`,
+      value: `${key}`,
+      isLeaf: true,
+      children: [],
+      pcode: '-1'
+    };
+    key += 1;
+    while (stack.length > 0 && stack[stack.length - 1].rank >= rank) {
+      stack.pop();
+    }
+    const parent = stack[stack.length - 1];
+    if (parent) {
+      node.pcode = parent.node.value;
+      parent.node.isLeaf = false;
+      parent.node.children.push(node);
+    } else {
+      directoryTree.push(node);
+    }
+    if (rank < 7) {
+      stack.push({ rank, node });
+    }
+  });
   return directoryTree;
 };
+
+function blockText(item: { content?: Array<{ text?: string }> }) {
+  return (item.content || [])
+    .map(child => child.text || '')
+    .join('')
+    .trim();
+}

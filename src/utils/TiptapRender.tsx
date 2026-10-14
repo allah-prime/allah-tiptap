@@ -2,6 +2,7 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import React from 'react';
 import type { IContent, ITiptapJson } from '../editor';
+import { lawClassName } from '../extensions/lawLevel';
 import { PreviewableImage, toCssSize } from '../image-preview';
 import '../image-preview/image-preview.css';
 import '../index.css';
@@ -285,7 +286,11 @@ class TiptapRender {
    */
   renderATitle(item: any) {
     return (
-      <div id={item.key} key={item.key} className={`a-tiptap-title${item.attrs.level}`}>
+      <div
+        id={item.key}
+        key={item.key}
+        className={lawClassName(item.attrs?.lawLevel, item.attrs?.level)}
+      >
         {this.renderContent(item.content)}
       </div>
     );

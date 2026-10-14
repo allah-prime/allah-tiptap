@@ -10,8 +10,8 @@ export * from './components/EditorMenu';
 
 export * from './context/EditorContext';
 
-export * from './EditorRender';
 export * from './ATiptapEditor';
+export * from './EditorRender';
 
 export const useEditor: (
   options: Partial<ATiptapEditorOptions>,
@@ -47,6 +47,7 @@ export interface IContent {
   type: string;
   attrs: {
     level: number;
+    lawLevel?: string | null;
     indent: number;
     textAlign: any;
     src: any;

@@ -8,16 +8,16 @@
   --atiptap-color-primary-hover: #4096ff;
   --atiptap-color-primary-bg: #e6f4ff;
   --atiptap-color-primary-border: #91caff;
-  --atiptap-color-text: rgba(0, 0, 0, 0.88);
-  --atiptap-color-text-secondary: rgba(0, 0, 0, 0.65);
-  --atiptap-color-text-tertiary: rgba(0, 0, 0, 0.45);
-  --atiptap-color-text-quaternary: rgba(0, 0, 0, 0.25);
+  --atiptap-color-text: rgba(0, 0, 0, 88%);
+  --atiptap-color-text-secondary: rgba(0, 0, 0, 65%);
+  --atiptap-color-text-tertiary: rgba(0, 0, 0, 45%);
+  --atiptap-color-text-quaternary: rgba(0, 0, 0, 25%);
   --atiptap-color-border: #d9d9d9;
   --atiptap-color-border-secondary: #f0f0f0;
-  --atiptap-color-split: rgba(5, 5, 5, 0.06);
+  --atiptap-color-split: rgba(5, 5, 5, 6%);
   --atiptap-color-bg: #fff;
   --atiptap-color-bg-spotlight: #fafafa;
-  --atiptap-color-fill: rgba(0, 0, 0, 0.04);
+  --atiptap-color-fill: rgba(0, 0, 0, 4%);
   --atiptap-border-radius: 6px;
   --atiptap-border-radius-sm: 4px;
   --atiptap-border-radius-lg: 8px;
@@ -26,8 +26,9 @@
   --atiptap-font-size-sm: 12px;
   --atiptap-motion: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   --atiptap-box-shadow:
-    0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    0 6px 16px 0 rgba(0, 0, 0, 8%), 0 3px 6px -4px rgba(0, 0, 0, 12%),
+    0 9px 28px 8px rgba(0, 0, 0, 5%);
+
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -101,7 +102,9 @@
   overflow: visible;
 }
 
-.atiptap-auto-height.atiptap_simple .atiptap-editor:not(.atiptap-editor--fullscreen) .atiptap-content {
+.atiptap-auto-height.atiptap_simple
+  .atiptap-editor:not(.atiptap-editor--fullscreen)
+  .atiptap-content {
   height: auto;
 }
 
@@ -217,15 +220,89 @@
 
 /* 三级标题特性 */
 .atiptap-content .a-tiptap-title3,
-.atiptap-content .atiptap-menu-head-row__title--levelATitle3 {
+.atiptap-content .atiptap-menu-head-row__title--levelATitle3,
+.atiptap-content .a-tiptap-jie,
+.atiptap-content .atiptap-menu-head-row__title--leveljie {
   font-weight: normal;
   line-height: 1.8em;
 }
 
 /* 政府风格三级标题缩进 */
 .atiptap_main_gov .atiptap-content .a-tiptap-title3,
-.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--levelATitle3 {
+.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--levelATitle3,
+.atiptap_main_gov .atiptap-content .a-tiptap-jie,
+.atiptap_main_gov .atiptap-content .atiptap-menu-head-row__title--leveljie {
   text-indent: 2em;
+}
+
+/* 卷、部、编、分编：居中，字号介于大标题和章之间 */
+.atiptap-content .a-tiptap-juan,
+.atiptap-content .a-tiptap-bu,
+.atiptap-content .a-tiptap-bian,
+.atiptap-content .a-tiptap-fenbian,
+.atiptap-content .atiptap-menu-head-row__title--leveljuan,
+.atiptap-content .atiptap-menu-head-row__title--levelbu,
+.atiptap-content .atiptap-menu-head-row__title--levelbian,
+.atiptap-content .atiptap-menu-head-row__title--levelfenbian {
+  font-family: '宋体', serif;
+  font-weight: bold;
+  margin: 2px 0;
+  text-align: center;
+  text-indent: 0;
+}
+
+.atiptap-content .a-tiptap-juan,
+.atiptap-content .atiptap-menu-head-row__title--leveljuan {
+  font-size: 22px;
+}
+
+.atiptap-content .a-tiptap-bu,
+.atiptap-content .atiptap-menu-head-row__title--levelbu {
+  font-size: 21px;
+}
+
+.atiptap-content .a-tiptap-bian,
+.atiptap-content .atiptap-menu-head-row__title--levelbian {
+  font-size: 20px;
+}
+
+.atiptap-content .a-tiptap-fenbian,
+.atiptap-content .atiptap-menu-head-row__title--levelfenbian {
+  font-size: 19px;
+}
+
+/* 章与旧的小标题同一套 */
+.atiptap-content .a-tiptap-zhang,
+.atiptap-content .atiptap-menu-head-row__title--levelzhang {
+  font-family: '宋体', serif;
+  font-weight: bold;
+  margin: 2px 0;
+  text-align: center;
+  text-indent: 0;
+  font-size: 18px;
+}
+
+/* 条顶格加粗；款按正文；项、目逐级缩进 */
+.atiptap-content .a-tiptap-tiao,
+.atiptap-content .atiptap-menu-head-row__title--leveltiao {
+  font-family: '宋体', serif;
+  font-weight: bold;
+  text-indent: 0;
+}
+
+.atiptap-content .a-tiptap-kuan,
+.atiptap-content .atiptap-menu-head-row__title--levelkuan {
+  text-indent: 2em;
+}
+
+.atiptap-content .a-tiptap-xiang,
+.atiptap-content .atiptap-menu-head-row__title--levelxiang {
+  text-indent: 2em;
+}
+
+.atiptap-content .a-tiptap-mu,
+.atiptap-content .atiptap-menu-head-row__title--levelmu {
+  text-indent: 4em;
 }
 
 /* 文号样式特性 */
@@ -433,7 +510,7 @@
   list-style: none;
   font-family: inherit;
   font-size: var(--atiptap-font-size);
-  line-height: 1.5714285714285714;
+  line-height: 1.5;
   text-align: left;
   transition: var(--atiptap-motion);
 }

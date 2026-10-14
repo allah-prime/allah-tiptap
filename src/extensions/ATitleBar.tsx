@@ -4,21 +4,26 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { ATiptapEditor } from '../editor';
 import { command, option } from '../menubar';
 import TextButton from './TextButton';
+import { LAW_MARKS, LawLevel, lawMarkOf } from './lawLevel';
 
-const headingLevels: Array<'ATitle1' | 'ATitle2' | 'ATitle3' | 1 | 2 | 3> = [
-  'ATitle1',
-  'ATitle2',
-  'ATitle3',
-  1,
-  2,
-  3
-];
+function isLawLevelActive(editor: ATiptapEditor, lawLevel: LawLevel) {
+  if (editor.isActive('ATitle', { lawLevel })) {
+    return true;
+  }
+  const current = editor.getAttributes('ATitle').lawLevel;
+  if (current) {
+    return false;
+  }
+  if (lawLevel === 'zhang') {
+    return editor.isActive('ATitle', { level: 2 });
+  }
+  if (lawLevel === 'jie') {
+    return editor.isActive('ATitle', { level: 3 });
+  }
+  return false;
+}
 
-const headingLevelsMap: Record<string, string> = {
-  ATitle1: '大标题',
-  ATitle2: '小标题(章)',
-  ATitle3: '子标题(节)'
-};
+const numericHeadingLevels: Array<1 | 2 | 3> = [1, 2, 3];
 
 type BlockMenuItem = {
   key: string;
@@ -44,9 +49,7 @@ export const ATitleBar: React.FC<ATitleBarProps> = ({ editor, showGovBlocks = fa
   const hasAWenHao = showGovBlocks && !!editor.state.schema.nodes.AWenHao;
   const hasHeading = !!editor.state.schema.nodes.heading;
 
-  const visibleHeadingLevels = headingLevels.filter(level =>
-    typeof level === 'number' ? hasHeading : hasATitle
-  );
+  const visibleHeadingLevels = numericHeadingLevels.filter(() => hasHeading);
 
   const apply = (runner: () => boolean) => {
     if (!runner()) {
@@ -70,26 +73,34 @@ export const ATitleBar: React.FC<ATitleBarProps> = ({ editor, showGovBlocks = fa
       }
     ];
 
-    visibleHeadingLevels.forEach(level => {
-      if (typeof level === 'number') {
-        items.push({
-          key: `heading-${level}`,
-          label: `${level}级标题`,
-          shortcut: `${command} + ${option} + ${level}`,
-          active: editor.isActive('heading', { level }),
-          disabled: !editor.can().setHeading({ level }),
-          onSelect: () => apply(() => editor.chain().focus().setHeading({ level }).run())
-        });
-        return;
-      }
-
-      const levelNum = Number(level.split('').pop()) as 1 | 2 | 3;
+    if (hasATitle) {
       items.push({
-        key: level,
-        label: headingLevelsMap[level] || `${levelNum}级标题`,
-        active: editor.isActive('ATitle', { level: levelNum }),
-        disabled: !editor.can().setATitle({ level: levelNum }),
-        onSelect: () => apply(() => editor.chain().focus().setATitle({ level: levelNum }).run())
+        key: 'ATitle1',
+        label: '大标题',
+        active: editor.isActive('ATitle', { level: 1 }) && !editor.getAttributes('ATitle').lawLevel,
+        disabled: !editor.can().setATitle({ level: 1 }),
+        onSelect: () => apply(() => editor.chain().focus().setATitle({ level: 1 }).run())
+      });
+      LAW_MARKS.forEach(mark => {
+        items.push({
+          key: mark.lawLevel,
+          label: mark.label,
+          active: isLawLevelActive(editor, mark.lawLevel),
+          disabled: !editor.can().setATitle({ lawLevel: mark.lawLevel }),
+          onSelect: () =>
+            apply(() => editor.chain().focus().setATitle({ lawLevel: mark.lawLevel }).run())
+        });
+      });
+    }
+
+    visibleHeadingLevels.forEach(level => {
+      items.push({
+        key: `heading-${level}`,
+        label: `${level}级标题`,
+        shortcut: `${command} + ${option} + ${level}`,
+        active: editor.isActive('heading', { level }),
+        disabled: !editor.can().setHeading({ level }),
+        onSelect: () => apply(() => editor.chain().focus().setHeading({ level }).run())
       });
     });
 
@@ -118,18 +129,17 @@ export const ATitleBar: React.FC<ATitleBarProps> = ({ editor, showGovBlocks = fa
     editor,
     editor.state.doc,
     editor.state.selection,
+    hasATitle,
     hasATail,
     hasAWenHao,
     visibleHeadingLevels
   ]);
 
+  const currentLawLevel = editor.getAttributes('ATitle').lawLevel as LawLevel | undefined;
   const currentLabel =
     menuItems.find(item => item.active)?.label ??
-    (editor.isActive('ATail')
-      ? '落款'
-      : editor.isActive('AWenHao')
-        ? '文号'
-        : '正文');
+    lawMarkOf(currentLawLevel)?.label ??
+    (editor.isActive('ATail') ? '落款' : editor.isActive('AWenHao') ? '文号' : '正文');
 
   const triggerActive = menuItems.some(item => item.active && item.key !== 'paragraph');
 
@@ -179,7 +189,9 @@ export const ATitleBar: React.FC<ATitleBarProps> = ({ editor, showGovBlocks = fa
               }}
             >
               <span className="atiptap-menu-head-row">
-                <span className={`atiptap-menu-head-row__title--level${item.key.replace('heading-', '')}`}>
+                <span
+                  className={`atiptap-menu-head-row__title--level${item.key.replace('heading-', '')}`}
+                >
                   {item.label}
                 </span>
                 {item.shortcut ? (

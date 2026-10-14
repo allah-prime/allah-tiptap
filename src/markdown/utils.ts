@@ -1,4 +1,5 @@
 import { isMarkActive, isNodeActive } from '@tiptap/core';
+import { LAW_MARKS, lawMarkByClass, lawMarkOf } from '../extensions/lawLevel';
 
 export const isInCode = (state: any): boolean => {
   return (
@@ -19,7 +20,10 @@ export const isMarkdown = (text: string): boolean => {
   // heading-ish
   if (text.match(/^#{1,6}\s+\S+/gm)) return true;
 
-  // heading-ish
+  // 法条层级：!卷 / !分编 / !章
+  if (text.match(/^!(?:分编|[卷部编章节条款项目])\s+\S+/gm)) return true;
+
+  // 旧写法：!! 章、!!! 节，以及 ! 大标题
   if (text.match(/^!{1,3}\s+\S+/gm)) return true;
 
   // tail
@@ -72,7 +76,12 @@ export const aHeadingHtmlToMd = (htmlString: string) => {
   for (const match of matches) {
     const level = parseInt(match[1]);
     const text = match[2].trim();
-    const heading = `${'!'.repeat(level)} ${text}`;
+    let heading = `${'!'.repeat(level)} ${text}`;
+    if (level === 2) {
+      heading = `!章 ${text}`;
+    } else if (level === 3) {
+      heading = `!节 ${text}`;
+    }
     result = result.replace(match[0], heading);
   }
 
@@ -104,6 +113,47 @@ export const aTailHtmlToMd = (htmlString: string) => {
     const text = match[1].trim();
     const heading = `!- ${text}`;
     result = result.replace(match[0], heading);
+  }
+  return result;
+};
+
+const lawMarksByLength = [...LAW_MARKS].sort((left, right) => right.md.length - left.md.length);
+
+/** 法条层级 HTML 导出为 !卷 / !章。属性顺序不固定。 */
+export const aLawHtmlToMd = (htmlString: string) => {
+  const regex = /<div\b([^>]*)>([\s\S]*?)<\/div>/g;
+  let result = htmlString;
+  for (const match of htmlString.matchAll(regex)) {
+    const attrs = match[1];
+    const lawLevel = readHtmlAttr(attrs, 'data-law-level');
+    const className = readHtmlAttr(attrs, 'class')
+      .split(/\s+/)
+      .find(name => lawMarkByClass(name));
+    const mark = lawMarkOf(lawLevel) || lawMarkByClass(className);
+    if (!mark) {
+      continue;
+    }
+    result = result.replace(match[0], `${mark.md} ${match[2].trim()}`);
+  }
+  return result;
+};
+
+function readHtmlAttr(source: string, name: string) {
+  const found = source.match(new RegExp(`${name}="([^"]*)"`));
+  return found ? found[1] : '';
+}
+
+/** 将 !卷 / !章 转成法条层级节点。分编先于编。 */
+export const mdLawToHtml = (mdString: string) => {
+  let result = mdString;
+  for (const mark of lawMarksByLength) {
+    const regex = new RegExp(
+      `^${mark.md.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}\\s+(.*)$`,
+      'gm'
+    );
+    result = result.replace(regex, (_full, text: string) => {
+      return `<div class="${mark.className}" data-law-level="${mark.lawLevel}">${text.trim()}</div>`;
+    });
   }
   return result;
 };

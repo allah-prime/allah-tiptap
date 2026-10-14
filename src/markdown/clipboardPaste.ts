@@ -1,7 +1,14 @@
 import { elementFromString, Extension } from '@tiptap/core';
 import { DOMParser, Slice } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { isInCode, isMarkdown, mdTailToHtml, mdTitleToHtml, mdWenhaoToHtml } from './utils';
+import {
+  isInCode,
+  isMarkdown,
+  mdLawToHtml,
+  mdTailToHtml,
+  mdTitleToHtml,
+  mdWenhaoToHtml
+} from './utils';
 
 export const MarkdownClipboardPaste = Extension.create({
   name: 'markdownClipboardPaste',
@@ -33,7 +40,8 @@ export const MarkdownClipboardPaste = Extension.create({
             }
 
             if (isMarkdown(text)) {
-              let newText = mdTailToHtml(text);
+              let newText = mdLawToHtml(text);
+              newText = mdTailToHtml(newText);
               newText = mdWenhaoToHtml(newText);
               newText = mdTitleToHtml(newText);
               const html = (this.editor.storage as any).markdown?.parser?.parse?.(newText, {
