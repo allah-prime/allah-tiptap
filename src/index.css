@@ -499,7 +499,10 @@
   z-index: 100;
   box-sizing: border-box;
   min-width: 180px;
+  max-height: min(360px, calc(100vh - 96px));
   padding: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--atiptap-color-bg);
   border: 1px solid var(--atiptap-color-border-secondary);
   border-radius: var(--atiptap-border-radius-lg);
